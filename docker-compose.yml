@@ -1,0 +1,38 @@
+# Sobe a API + MySQL juntos:  docker compose up --build
+# Precisa de um arquivo .env (copie de .env.example e preencha as senhas).
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?defina DB_ROOT_PASSWORD no .env}
+      MYSQL_DATABASE: risk_mapping
+    volumes:
+      - dados-mysql:/var/lib/mysql                       # os dados sobrevivem a "docker compose down"
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro   # roda só na 1ª vez (volume vazio)
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # sem "ports": o banco fica acessível só para a API, não para fora da máquina
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NOME: risk_mapping
+      DB_USUARIO: root
+      DB_SENHA: ${DB_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env (mínimo 32 caracteres)}
+      ADMIN_SENHA: ${ADMIN_SENHA:?defina ADMIN_SENHA no .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@riskmapping.com}
+    ports:
+      - "8080:8080"
+
+volumes:
+  dados-mysql:

@@ -1,0 +1,28 @@
+# Blueprint do Render: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: risk-mapping-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/v1/categorias
+    envVars:
+      # Preencha no painel do Render (não vai para o Git)
+      - key: ADMIN_SENHA
+        sync: false
+      # Banco (TiDB Cloud). Servidor e TLS não são segredo, então já vão fixos aqui.
+      - key: DB_HOST
+        value: gateway01.sa-east-1.prod.aws.tidbcloud.com
+      - key: DB_PORTA
+        value: "4000"
+      - key: DB_SSL
+        value: VERIFY_IDENTITY
+      # Preencha no painel do Render: usuário (com o prefixo do TiDB, ex: abc123.root), senha e nome do banco
+      - key: DB_NOME
+        sync: false
+      - key: DB_USUARIO
+        sync: false
+      - key: DB_SENHA
+        sync: false
+      # O Render gera um valor aleatório e forte
+      - key: JWT_SECRET
+        generateValue: true
