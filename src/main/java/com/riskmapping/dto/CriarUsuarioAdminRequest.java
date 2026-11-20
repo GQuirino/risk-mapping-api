@@ -1,5 +1,8 @@
 package com.riskmapping.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -19,6 +22,18 @@ public record CriarUsuarioAdminRequest(
 
         @NotBlank(message = "A senha é obrigatória")
         @Size(min = 8, max = 72, message = "A senha deve ter de 8 a 72 caracteres")
-        String senha
+        String senha,
+
+        @NotBlank(message = "A confirmação da senha é obrigatória")
+        @Schema(description = "Repita a senha")
+        String confirmarSenha
 ) {
+
+    // Erro 400 em "senhasIguais" quando a confirmação é diferente da senha
+    @JsonIgnore
+    @Schema(hidden = true)
+    @AssertTrue(message = "As senhas não conferem")
+    public boolean isSenhasIguais() {
+        return senha == null || confirmarSenha == null || senha.equals(confirmarSenha);
+    }
 }

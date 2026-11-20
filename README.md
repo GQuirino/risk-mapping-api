@@ -175,6 +175,8 @@ são preenchidas no painel (`sync: false`), então não vão para o Git.
   reservado (ninguém se cadastra com ele) e o ADMIN não pode trocá-lo. Ao subir, a API cria a conta ADMIN ou
   sincroniza a senha com `ADMIN_SENHA`.
 - Quem se cadastra sozinho é sempre USUARIO. Editar ou apagar um risco ou comentário é só do dono ou de um ADMIN (403).
+- Ao criar usuário (`/auth/registrar` e `POST /usuarios`) é preciso enviar `confirmarSenha`, igual a `senha`;
+  se faltar ou for diferente, a API responde 400 (`senhasIguais`).
 - O cadastro (`/auth/registrar`) responde 409 para e-mail já usado: aceito para não prejudicar quem se
   cadastra; corrigir de verdade exige confirmação por e-mail.
 - **CORS:** a API não libera nenhuma origem de navegador, porque é só API (consumida por clientes HTTP e
